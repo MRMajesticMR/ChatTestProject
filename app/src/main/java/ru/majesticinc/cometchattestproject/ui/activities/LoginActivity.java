@@ -25,23 +25,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText mailEdt;
     private Button enterBtn;
 
-//    private UserListQuery mUserListQuery;
-//
-//    //
-////        mUserListQuery = SendBird.queryUserList();
-////        if(mUserListQuery != null && mUserListQuery.hasNext() && !mUserListQuery.isLoading()) {
-////            mUserListQuery.next(new UserListQuery.UserListQueryResult() {
-////                @Override
-////                public void onResult(List<User> users) {
-////                    Log.i("", "");
-////                }
-////
-////                @Override
-////                public void onError(SendBirdException e) {
-////                }
-////            });
-////        }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
