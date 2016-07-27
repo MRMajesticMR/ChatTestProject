@@ -1,4 +1,4 @@
-package ru.majesticinc.cometchattestproject.ui.dialogs;
+package ru.majesticinc.cometchattestproject.ui.dialogs.impl;
 
 import android.app.ProgressDialog;
 import android.content.Context;

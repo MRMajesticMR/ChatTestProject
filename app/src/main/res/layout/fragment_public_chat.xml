@@ -10,8 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#CCC"
-        android:text="@string/hello_blank_fragment" />
+        android:background="#CCC" />
 
     <EditText
         android:id="@+id/public_chat_edt_message"

@@ -1,11 +1,9 @@
 package ru.majesticinc.cometchattestproject.ui.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +27,19 @@ import com.sendbird.android.model.TypeStatus;
 import java.util.List;
 
 import ru.majesticinc.cometchattestproject.R;
-import ru.majesticinc.cometchattestproject.ui.dialogs.ConnectionProgressDialog;
+import ru.majesticinc.cometchattestproject.ui.dialogs.IDialog;
+import ru.majesticinc.cometchattestproject.ui.dialogs.impl.ConnectionFailedDialog;
+import ru.majesticinc.cometchattestproject.ui.dialogs.impl.ConnectionProgressDialog;
+import ru.majesticinc.cometchattestproject.ui.dialogs.listeners.DialogActionListener;
 import ru.majesticinc.cometchattestproject.utils.Settings;
 
-public class PublicChatFragment extends Fragment implements SendBirdEventHandler, View.OnClickListener {
+public class PublicChatFragment extends Fragment implements SendBirdEventHandler, View.OnClickListener, DialogActionListener {
 
     private EditText messageEdt;
     private TextView chatTxt;
 
     private ConnectionProgressDialog connectionProgressDialog;
+    private ConnectionFailedDialog connectionFailedDialog;
 
     public PublicChatFragment() {
         // Required empty public constructor
@@ -53,36 +55,11 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
         super.onCreate(savedInstanceState);
 
         connectionProgressDialog = new ConnectionProgressDialog(getActivity());
-        connectionProgressDialog.show();
 
-        SendBird.join(Settings.SEND_BIRD_PUBLIC_CHANEL_ID);
-        SendBird.setEventHandler(PublicChatFragment.this);
-        SendBird.queryMessageList(SendBird.getChannelUrl()).prev(Long.MAX_VALUE, 50, new MessageListQuery.MessageListQueryResult() {
-            @Override
-            public void onResult(List<MessageModel> messageModels) {
-                long maxTimestamp = 0;
+        connectionFailedDialog = new ConnectionFailedDialog(getContext());
+        connectionFailedDialog.setDialogActionListener(this);
 
-                for(MessageModel model : messageModels) {
-                    if(model instanceof Message) {
-                        Message message = (Message) model;
-
-                        chatTxt.append(message.getSenderName() + " (" + message.getTimestamp() + ")" + ": " + message.getMessage() + "\r\n");
-                    }
-
-                    if(maxTimestamp < model.getTimestamp()) {
-                        maxTimestamp = model.getTimestamp();
-                    }
-                }
-
-                SendBird.connect(maxTimestamp);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                connectionProgressDialog.hide();
-                Toast.makeText(PublicChatFragment.this.getContext(), "Не удалось получить список сообщений", Toast.LENGTH_SHORT).show();
-            }
-        });
+        initSendBird();
     }
 
     @Override
@@ -122,7 +99,7 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
     @Override
     public void onError(int i) {
         connectionProgressDialog.hide();
-        Toast.makeText(getActivity(), "Ошибка: " + i, Toast.LENGTH_SHORT).show();
+        connectionFailedDialog.show();
     }
 
     @Override
@@ -230,4 +207,59 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
                 break;
         }
     }
+
+    @Override
+    public void onDialogCanceled(IDialog dialog) {
+        if(dialog == connectionFailedDialog) {
+            getActivity().finish();
+        }
+    }
+
+    @Override
+    public void onDialogConfirmed(IDialog dialog) {
+        if(dialog == connectionFailedDialog) {
+            initSendBird();
+        }
+    }
+
+    //===== <PRIVATE_METHODS> =====
+    private void initSendBird() {
+        connectionProgressDialog.show();
+
+        SendBird.join(Settings.SEND_BIRD_PUBLIC_CHANEL_ID);
+        SendBird.setEventHandler(PublicChatFragment.this);
+        SendBird.queryMessageList(SendBird.getChannelUrl()).prev(Long.MAX_VALUE, 50, new MessageListQuery.MessageListQueryResult() {
+            @Override
+            public void onResult(List<MessageModel> messageModels) {
+                clearChat();
+
+                long maxTimestamp = 0;
+
+                for(MessageModel model : messageModels) {
+                    if(model instanceof Message) {
+                        Message message = (Message) model;
+
+                        chatTxt.append(message.getSenderName() + " (" + message.getTimestamp() + ")" + ": " + message.getMessage() + "\r\n");
+                    }
+
+                    if(maxTimestamp < model.getTimestamp()) {
+                        maxTimestamp = model.getTimestamp();
+                    }
+                }
+
+                SendBird.connect(maxTimestamp);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                connectionProgressDialog.hide();
+                connectionFailedDialog.show();
+            }
+        });
+    }
+
+    private void clearChat() {
+        chatTxt.setText("");
+    }
+    //===== </PRIVATE_METHODS> =====
 }
