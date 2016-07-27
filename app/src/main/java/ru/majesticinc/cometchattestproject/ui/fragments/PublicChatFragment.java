@@ -29,12 +29,15 @@ import com.sendbird.android.model.TypeStatus;
 import java.util.List;
 
 import ru.majesticinc.cometchattestproject.R;
+import ru.majesticinc.cometchattestproject.ui.dialogs.ConnectionProgressDialog;
 import ru.majesticinc.cometchattestproject.utils.Settings;
 
 public class PublicChatFragment extends Fragment implements SendBirdEventHandler, View.OnClickListener {
 
     private EditText messageEdt;
     private TextView chatTxt;
+
+    private ConnectionProgressDialog connectionProgressDialog;
 
     public PublicChatFragment() {
         // Required empty public constructor
@@ -48,6 +51,9 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        connectionProgressDialog = new ConnectionProgressDialog(getActivity());
+        connectionProgressDialog.show();
 
         SendBird.join(Settings.SEND_BIRD_PUBLIC_CHANEL_ID);
         SendBird.setEventHandler(PublicChatFragment.this);
@@ -73,7 +79,8 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
 
             @Override
             public void onError(Exception e) {
-                Log.e("ERROR", e.toString());
+                connectionProgressDialog.hide();
+                Toast.makeText(PublicChatFragment.this.getContext(), "Не удалось получить список сообщений", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -109,11 +116,12 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
 
     @Override
     public void onConnect(Channel channel) {
-        Toast.makeText(getActivity(), "Подключились к каналу", Toast.LENGTH_SHORT).show();
+        connectionProgressDialog.hide();
     }
 
     @Override
     public void onError(int i) {
+        connectionProgressDialog.hide();
         Toast.makeText(getActivity(), "Ошибка: " + i, Toast.LENGTH_SHORT).show();
     }
 
