@@ -17,12 +17,14 @@ import android.view.MenuItem;
 
 import ru.majesticinc.cometchattestproject.R;
 import ru.majesticinc.cometchattestproject.ui.fragments.PublicChatFragment;
+import ru.majesticinc.cometchattestproject.ui.fragments.UsersFragment;
 
 public class WorkingActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     public enum State {
-        PUBLIC_CHAT
+        PUBLIC_CHAT,
+        USERS
     }
 
     private State activityState;
@@ -37,7 +39,6 @@ public class WorkingActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -62,39 +63,24 @@ public class WorkingActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.working, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+        switch(item.getItemId()) {
+            case R.id.nav_public_chat:
+                changeActivityState(State.PUBLIC_CHAT);
+                break;
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            case R.id.nav_users:
+                changeActivityState(State.USERS);
+                break;
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            case R.id.nav_exit:
+                finish();
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -102,36 +88,35 @@ public class WorkingActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (activityState) {
-            case PUBLIC_CHAT:
-
-                break;
-        }
-    }
-
     //===== <PRIVATE_METHODS> =====
     private void changeActivityState(State newState) {
-        this.activityState = newState;
+        if(activityState != newState) {
+            this.activityState = newState;
 
-        Fragment stateFragment = null;
+            Fragment stateFragment = null;
 
-        switch(activityState) {
-            case PUBLIC_CHAT:
-                stateFragment = PublicChatFragment.newInstance();
-                break;
+            switch (activityState) {
+                case PUBLIC_CHAT:
+                    stateFragment = PublicChatFragment.newInstance();
+                    break;
+
+                case USERS:
+                    stateFragment = UsersFragment.newInstance();
+                    break;
+            }
+
+            changeFragment(stateFragment);
+
+            if(fab.isShown())
+                fab.hide();
+
+            if (stateFragment instanceof View.OnClickListener) {
+                fab.setOnClickListener((View.OnClickListener) stateFragment);
+                fab.show();
+            } else {
+                fab.setOnClickListener(null);
+            }
         }
-
-        changeFragment(stateFragment);
-
-        fab.hide();
-        if(stateFragment instanceof View.OnClickListener) {
-            fab.setOnClickListener((View.OnClickListener) stateFragment);
-        } else {
-            fab.setOnClickListener(null);
-        }
-        fab.show();
     }
 
     private void changeFragment(Fragment newFragment) {
