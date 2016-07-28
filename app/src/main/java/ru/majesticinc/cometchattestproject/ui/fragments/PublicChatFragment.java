@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -37,6 +38,8 @@ import ru.majesticinc.cometchattestproject.ui.dialogs.listeners.DialogActionList
 import ru.majesticinc.cometchattestproject.utils.Settings;
 
 public class PublicChatFragment extends Fragment implements SendBirdEventHandler, View.OnClickListener, DialogActionListener {
+
+    private static final String FRAGMENT_TITLE = "Общий чат";
 
     private EditText messageEdt;
     private RecyclerView chatView;
@@ -94,6 +97,10 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(FRAGMENT_TITLE);
+        }
     }
 
     @Override

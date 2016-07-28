@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import ru.majesticinc.cometchattestproject.R;
 
 public class UsersFragment extends Fragment {
+
+    private static final String FRAGMENT_TITLE = "Пользователи";
 
     public UsersFragment() {
         // Required empty public constructor
@@ -36,6 +39,10 @@ public class UsersFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(FRAGMENT_TITLE);
+        }
     }
 
     @Override
