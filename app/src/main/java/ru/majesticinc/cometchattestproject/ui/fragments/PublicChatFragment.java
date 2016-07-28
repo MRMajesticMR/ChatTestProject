@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ import com.sendbird.android.model.TypeStatus;
 import java.util.List;
 
 import ru.majesticinc.cometchattestproject.R;
+import ru.majesticinc.cometchattestproject.ui.adapters.ChatAdapter;
 import ru.majesticinc.cometchattestproject.ui.dialogs.IDialog;
 import ru.majesticinc.cometchattestproject.ui.dialogs.impl.ConnectionFailedDialog;
 import ru.majesticinc.cometchattestproject.ui.dialogs.impl.ConnectionProgressDialog;
@@ -36,7 +39,8 @@ import ru.majesticinc.cometchattestproject.utils.Settings;
 public class PublicChatFragment extends Fragment implements SendBirdEventHandler, View.OnClickListener, DialogActionListener {
 
     private EditText messageEdt;
-    private TextView chatTxt;
+    private RecyclerView chatView;
+    private ChatAdapter chatAdapter;
 
     private ConnectionProgressDialog connectionProgressDialog;
     private ConnectionFailedDialog connectionFailedDialog;
@@ -77,8 +81,14 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        messageEdt = (EditText) view.findViewById(R.id.public_chat_edt_message);
-        chatTxt = (TextView) view.findViewById(R.id.public_chat_fragment_txt_chat_log);
+        chatAdapter = new ChatAdapter();
+
+        messageEdt = (EditText) view.findViewById(R.id.public_chat_fragment_edt_message);
+
+        chatView = (RecyclerView) view.findViewById(R.id.public_chat_fragment_recycle_view_chat);
+        chatView.setHasFixedSize(true);
+        chatView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        chatView.setAdapter(chatAdapter);
     }
 
     @Override
@@ -109,7 +119,7 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
 
     @Override
     public void onMessageReceived(Message message) {
-        chatTxt.append(message.getSenderName() + " (" + message.getTimestamp() + ")" + ": " + message.getMessage() + "\r\n");
+        chatAdapter.addMessageModel(message);
     }
 
     @Override
@@ -227,27 +237,17 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
         connectionProgressDialog.show();
 
         SendBird.join(Settings.SEND_BIRD_PUBLIC_CHANEL_ID);
-        SendBird.setEventHandler(PublicChatFragment.this);
+        SendBird.setEventHandler(this);
         SendBird.queryMessageList(SendBird.getChannelUrl()).prev(Long.MAX_VALUE, 50, new MessageListQuery.MessageListQueryResult() {
             @Override
             public void onResult(List<MessageModel> messageModels) {
                 clearChat();
 
-                long maxTimestamp = 0;
-
                 for(MessageModel model : messageModels) {
-                    if(model instanceof Message) {
-                        Message message = (Message) model;
-
-                        chatTxt.append(message.getSenderName() + " (" + message.getTimestamp() + ")" + ": " + message.getMessage() + "\r\n");
-                    }
-
-                    if(maxTimestamp < model.getTimestamp()) {
-                        maxTimestamp = model.getTimestamp();
-                    }
+                    chatAdapter.addMessageModel(model);
                 }
 
-                SendBird.connect(maxTimestamp);
+                SendBird.connect(chatAdapter.getLatestMessageTimestamp());
             }
 
             @Override
@@ -259,7 +259,7 @@ public class PublicChatFragment extends Fragment implements SendBirdEventHandler
     }
 
     private void clearChat() {
-        chatTxt.setText("");
+        chatAdapter.clearData();
     }
     //===== </PRIVATE_METHODS> =====
 }

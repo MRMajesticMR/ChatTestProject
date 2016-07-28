@@ -5,15 +5,14 @@
     android:orientation="vertical"
     tools:context="ru.majesticinc.cometchattestproject.ui.fragments.PublicChatFragment">
 
-    <TextView
-        android:id="@+id/public_chat_fragment_txt_chat_log"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/public_chat_fragment_recycle_view_chat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#CCC" />
+        android:layout_weight="1" />
 
     <EditText
-        android:id="@+id/public_chat_edt_message"
+        android:id="@+id/public_chat_fragment_edt_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Введите сообщение"/>
