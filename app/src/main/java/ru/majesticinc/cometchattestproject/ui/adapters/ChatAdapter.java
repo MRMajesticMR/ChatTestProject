@@ -10,6 +10,8 @@ import com.sendbird.android.model.Message;
 import com.sendbird.android.model.MessageModel;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +40,23 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         }
     }
+
+    public Comparator<MessageModel> messagesComparator = new Comparator<MessageModel>() {
+
+        @Override
+        public int compare(MessageModel lhs, MessageModel rhs) {
+            if(lhs.getTimestamp() > rhs.getTimestamp()) {
+                return 1;
+
+            } else if (lhs.getTimestamp() < rhs.getTimestamp()) {
+                return -1;
+
+            } else {
+                return 0;
+
+            }
+        }
+    };
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault());
 
@@ -69,6 +88,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     public void addMessageModel(MessageModel messageModel) {
         messages.add(messageModel);
+        Collections.sort(messages, messagesComparator);
         notifyDataSetChanged();
     }
 
