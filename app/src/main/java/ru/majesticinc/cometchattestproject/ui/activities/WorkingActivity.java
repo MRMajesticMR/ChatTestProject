@@ -14,6 +14,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.sendbird.android.SendBird;
 
 import ru.majesticinc.cometchattestproject.R;
 import ru.majesticinc.cometchattestproject.ui.fragments.PublicChatFragment;
@@ -47,6 +50,7 @@ public class WorkingActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        ((TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_header_txt_user_name)).setText(SendBird.getUserName());
 
         changeActivityState(State.PUBLIC_CHAT);
     }
