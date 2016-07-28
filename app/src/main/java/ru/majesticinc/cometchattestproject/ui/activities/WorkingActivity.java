@@ -125,6 +125,7 @@ public class WorkingActivity extends AppCompatActivity
 
     private void changeFragment(Fragment newFragment) {
         FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        tr.setCustomAnimations(R.anim.show_fragment_slide_right, R.anim.hide_fragment_slide_left);
         tr.replace(R.id.working_activity_fragments_container, newFragment);
         tr.commit();
     }
